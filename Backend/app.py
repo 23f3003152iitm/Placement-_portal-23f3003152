@@ -77,5 +77,6 @@ app.config.update(
     CELERY_RESULT_BACKEND="redis://localhost:6379/0"
 )
 
+
 if __name__ == "__main__":
     app.run(debug=True)
