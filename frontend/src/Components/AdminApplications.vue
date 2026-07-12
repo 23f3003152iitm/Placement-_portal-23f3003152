@@ -1,0 +1,100 @@
+ <template>
+  <div class="container mt-5" style="max-width: 1100px;">
+    <h2 class="mb-4 text-center">Application Management</h2>
+
+    <div v-if="errorMessage" class="alert alert-danger alert-dismissible">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" @click="errorMessage = ''"></button>
+    </div>
+
+    <div v-if="isLoading" class="text-center py-5">
+      <span class="spinner-border text-primary"></span>
+      <p class="mt-2 text-muted">Loading applications...</p>
+    </div>
+
+    <div v-else>
+      <div v-if="applications.length === 0" class="text-center text-muted py-5">
+        No applications found.
+      </div>
+
+      <div v-else class="border rounded-3 shadow-sm p-3 overflow-auto">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Student Name</th>
+              <th>Student Email</th>
+              <th>Company</th>
+              <th>Job Title</th>
+              <th>Status</th>
+              <th>Applied At</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(app, index) in applications" :key="app.id">
+              <td>{{ index + 1 }}</td>
+              <td>{{ app.student_name }}</td>
+              <td>{{ app.student_email }}</td>
+              <td>{{ app.company_name }}</td>
+              <td>{{ app.job_title }}</td>
+              <td>
+                <span :class="statusBadge(app.status)">{{ app.status }}</span>
+              </td>
+              <td>{{ formatDate(app.applied_at) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+
+export default {
+  name: "AdminApplications",
+  data() {
+    return {
+      applications: [],
+      isLoading: false,
+      errorMessage: "",
+    };
+  },
+  async mounted() {
+    await this.fetchApplications();
+  },
+  methods: {
+    async fetchApplications() {
+      this.isLoading = true;
+      this.errorMessage = "";
+      try {
+        const res = await axios.get("http://localhost:5000/api/admin/applications");
+        this.applications = res.data;
+      } catch (err) {
+        this.errorMessage = "Failed to load applications.";
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    formatDate(dateStr) {
+      if (!dateStr) return "N/A";
+      return new Date(dateStr).toLocaleString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric",
+        hour: "2-digit", minute: "2-digit",
+      });
+    },
+
+    statusBadge(status) {
+      const map = {
+        Applied: "badge bg-primary",
+        Shortlisted: "badge bg-info text-dark",
+        Rejected: "badge bg-danger",
+        Selected: "badge bg-success",
+      };
+      return map[status] || "badge bg-secondary";
+    },
+  },
+};
+</script>
