@@ -72,12 +72,22 @@ export default {
       this.isLoading = true;
       this.errorMessage = "";
       const studentId = localStorage.getItem("student_id");
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`http://localhost:5000/api/student/dashboard/${studentId}`);
+        const res = await axios.get(`http://localhost:5000/api/student/dashboard/${studentId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.formData.branch = res.data.branch || "";
         this.formData.cgpa = res.data.cgpa || "";
       } catch (err) {
-        this.errorMessage = "Failed to load profile data.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load profile data.";
+        }
       } finally {
         this.isLoading = false;
       }
@@ -88,11 +98,21 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
       const studentId = localStorage.getItem("student_id");
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.put(`http://localhost:5000/api/student/profile/${studentId}`, this.formData);
+        const res = await axios.put(`http://localhost:5000/api/student/profile/${studentId}`, this.formData, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.successMessage = res.data.message || "Profile updated successfully!";
       } catch (err) {
-        this.errorMessage = err.response?.data?.message || "Update failed. Please try again.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = err.response?.data?.message || "Update failed. Please try again.";
+        }
       } finally {
         this.isSubmitting = false;
       }

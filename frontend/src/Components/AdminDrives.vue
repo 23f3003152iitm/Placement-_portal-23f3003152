@@ -83,11 +83,21 @@ export default {
     async fetchDrives() {
       this.isLoading = true;
       this.errorMessage = "";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get("http://localhost:5000/api/admin/drives");
+        const res = await axios.get("http://localhost:5000/api/admin/drives", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.drives = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load placement drives.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load placement drives.";
+        }
       } finally {
         this.isLoading = false;
       }

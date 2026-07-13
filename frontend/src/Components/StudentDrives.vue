@@ -87,11 +87,21 @@ export default {
     async fetchDrives() {
       this.isLoading = true;
       this.errorMessage = "";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get("http://localhost:5000/api/student/drives");
+        const res = await axios.get("http://localhost:5000/api/student/drives", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.drives = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load drives.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.errorMessage = "Failed to load drives.";
+        }
       } finally {
         this.isLoading = false;
       }
@@ -102,14 +112,24 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
       const studentId = localStorage.getItem("student_id");
+      const token = localStorage.getItem("token");
       try {
         const res = await axios.post("http://localhost:5000/api/student/apply", {
           student_id: parseInt(studentId),
           drive_id: driveId,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
         this.successMessage = res.data.message || "Applied successfully!";
       } catch (err) {
-        this.errorMessage = err.response?.data?.message || "Failed to apply. Please try again.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = err.response?.data?.message || "Failed to apply. Please try again.";
+        }
       } finally {
         this.applyingId = null;
       }

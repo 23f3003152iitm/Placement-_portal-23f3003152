@@ -87,11 +87,21 @@ export default {
     async fetchDashboard() {
       this.isLoading = true;
       this.errorMessage = "";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get("http://localhost:5000/api/admin/dashboard");
+        const res = await axios.get("http://localhost:5000/api/admin/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.stats = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load dashboard data.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load dashboard data.";
+        }
       } finally {
         this.isLoading = false;
       }

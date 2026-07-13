@@ -69,7 +69,7 @@ export default {
         const res = await axios.post(`http://localhost:5000/api/student_profile/${userId}`, this.formData);
         localStorage.setItem("student_id", res.data.student_id);
         this.successMessage = res.data.message || "Profile saved successfully!";
-        setTimeout(() => { this.$router.push("/student_dashboard"); }, 2000);
+        setTimeout(() => { this.$router.push("/"); }, 2000);
       } catch (err) {
         this.errorMessage = err.response?.data?.message || "Failed to save profile. Please try again.";
       } finally {

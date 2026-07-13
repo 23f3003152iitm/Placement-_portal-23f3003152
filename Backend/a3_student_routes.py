@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from model import Student, PlacementDrive, Application
 from tasks.export_csv import export_applications
 from db import db
@@ -9,6 +10,7 @@ student_bp = Blueprint("student", __name__)
 
 
 @student_bp.route("/api/student/check/<int:user_id>", methods=["GET"])
+@jwt_required()
 def check_student(user_id):
     student = Student.query.filter_by(user_id=user_id).first()
     if student:
@@ -22,6 +24,7 @@ def check_student(user_id):
 
 
 @student_bp.route("/api/student_profile/<int:id>", methods=["POST"])
+
 def register(id):
 
     data = request.get_json() # request.get_json() is used to parse the incoming JSON data from the request body.
@@ -64,6 +67,7 @@ def register(id):
 
 
 @student_bp.route("/api/student/export/<int:student_id>", methods=["POST"])
+@jwt_required()
 def export_csv(student_id):
     from app import celery
     from tasks.export_csv import export_applications
@@ -83,6 +87,7 @@ def export_csv(student_id):
 # ===================== STUDENT DASHBOARD =====================
 
 @student_bp.route("/api/student/dashboard/<int:student_id>", methods=["GET"])
+@jwt_required()
 def student_dashboard(student_id):
 
     student = Student.query.get_or_404(student_id)
@@ -122,6 +127,7 @@ def student_dashboard(student_id):
 # ===================== GET APPROVED DRIVES =====================
 
 @student_bp.route("/api/student/drives", methods=["GET"])
+@jwt_required()
 def get_approved_drives():
 
     drives = PlacementDrive.query.filter_by(
@@ -157,6 +163,7 @@ def get_approved_drives():
 # ===================== APPLY FOR DRIVE =====================
 
 @student_bp.route("/api/student/apply", methods=["POST"])
+@jwt_required()
 def apply_drive():
 
     data = request.get_json()
@@ -222,6 +229,7 @@ def apply_drive():
 # ===================== VIEW APPLICATION STATUS =====================
 
 @student_bp.route("/api/student/applications/<int:student_id>", methods=["GET"])
+@jwt_required()
 def get_student_applications(student_id):
 
     applications = Application.query.filter_by(
@@ -255,6 +263,7 @@ def get_student_applications(student_id):
 # ===================== PLACEMENT HISTORY =====================
 
 @student_bp.route("/api/student/history/<int:student_id>", methods=["GET"])
+@jwt_required()
 def placement_history(student_id):
 
     applications = Application.query.filter_by(
@@ -288,6 +297,7 @@ def placement_history(student_id):
 # ===================== UPDATE PROFILE =====================
 
 @student_bp.route("/api/student/profile/<int:id>", methods=["PUT"])
+@jwt_required()
 def update_profile(id):
 
     student = Student.query.get_or_404(id)

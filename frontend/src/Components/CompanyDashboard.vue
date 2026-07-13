@@ -80,11 +80,22 @@ export default {
       this.isLoading = true;
       this.errorMessage = "";
       const companyId = localStorage.getItem("company_id");
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`http://localhost:5000/api/company/dashboard/${companyId}`);
+        const res = await axios.get(`http://localhost:5000/api/company/dashboard/${companyId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.stats = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load dashboard.";
+          if (err.response?.status === 401) {
+            localStorage.clear()
+            this.$router.push("/")   // token expired → back to login
+          } else {
+            console.error(err);
+            this.errorMessage = "Failed to load dashboard.";
+          }
       } finally {
         this.isLoading = false;
       }

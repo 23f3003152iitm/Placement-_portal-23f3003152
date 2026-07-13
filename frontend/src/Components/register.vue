@@ -95,7 +95,7 @@ export default {
 
         // Optional: redirect to login after 2 sec
         setTimeout(() => {
-          this.$router.push("/login");
+          this.$router.push("/");
         }, 2000);
 
       } catch (err) {

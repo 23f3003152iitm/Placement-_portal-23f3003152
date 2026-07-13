@@ -80,11 +80,21 @@ export default {
       this.isLoading = true;
       this.errorMessage = "";
       const companyId = localStorage.getItem("company_id");
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`http://localhost:5000/api/company/drives/${companyId}`);
+        const res = await axios.get(`http://localhost:5000/api/company/drives/${companyId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.drives = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load drives.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load drives.";
+        }
       } finally {
         this.isLoading = false;
       }
@@ -96,11 +106,21 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
       try {
-        const res = await axios.delete(`http://localhost:5000/api/company/drive/${id}`);
+        const token = localStorage.getItem("token");
+        const res = await axios.delete(`http://localhost:5000/api/company/drive/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.successMessage = res.data.message || "Drive deleted.";
         await this.fetchDrives();
       } catch (err) {
-        this.errorMessage = err.response?.data?.message || "Failed to delete drive.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.errorMessage = err.response?.data?.message || "Failed to delete drive.";
+        }
       } finally {
         this.actionLoading = null;
       }

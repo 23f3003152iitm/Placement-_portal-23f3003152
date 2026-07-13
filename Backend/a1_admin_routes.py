@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 
 from model import User, Student, Company, PlacementDrive, Application
 from db import db
@@ -25,6 +25,7 @@ admin_bp = Blueprint("admin", __name__)   # Create blueprint for admin routes
 # ===================== DASHBOARD =====================
 
 @admin_bp.route("/api/admin/dashboard", methods=["GET"])
+@jwt_required()
 def get_dashboard():
 
     student_count = Student.query.count() or 0
@@ -62,6 +63,7 @@ def get_dashboard():
 # ===================== COMPANY MANAGEMENT =====================
 
 @admin_bp.route("/api/admin/companies", methods=["GET"])
+@jwt_required()
 def get_companies():
 
     companies = Company.query.all()
@@ -85,6 +87,7 @@ def get_companies():
 
 
 @admin_bp.route("/api/admin/company/<int:id>/approve", methods=["PUT"])
+@jwt_required()
 def approve_company(id):
 
     company = Company.query.get_or_404(id)
@@ -105,6 +108,7 @@ def approve_company(id):
 
 
 @admin_bp.route("/api/admin/company/<int:id>/reject", methods=["PUT"])
+@jwt_required()
 def reject_company(id):
 
     company = Company.query.get_or_404(id)
@@ -125,6 +129,7 @@ def reject_company(id):
 
 
 @admin_bp.route("/api/admin/company/<int:id>/blacklist", methods=["PUT"])
+@jwt_required()
 def blacklist_company(id):
 
     company = Company.query.get_or_404(id)
@@ -145,6 +150,7 @@ def blacklist_company(id):
 
 
 @admin_bp.route("/api/admin/company/<int:id>", methods=["DELETE"])
+@jwt_required()
 def delete_company(id):
 
     company = Company.query.get_or_404(id)
@@ -176,6 +182,7 @@ def delete_company(id):
 # ===================== STUDENT MANAGEMENT =====================
 
 @admin_bp.route("/api/admin/students", methods=["GET"])
+@jwt_required()
 def get_students():
 
     students = Student.query.all()
@@ -199,6 +206,7 @@ def get_students():
 
 
 @admin_bp.route("/api/admin/student/<int:id>/blacklist", methods=["PUT"])
+@jwt_required()
 def blacklist_student(id):
 
     student = Student.query.get_or_404(id)
@@ -219,6 +227,7 @@ def blacklist_student(id):
 
 
 @admin_bp.route("/api/admin/student/<int:id>", methods=["DELETE"])
+@jwt_required()
 def delete_student(id):
 
     student = Student.query.get_or_404(id)
@@ -250,6 +259,7 @@ def delete_student(id):
 # ===================== PLACEMENT DRIVE MANAGEMENT =====================
 
 @admin_bp.route("/api/admin/drives", methods=["GET"])
+@jwt_required()
 def get_drives():
 
     drives = PlacementDrive.query.all()
@@ -272,6 +282,7 @@ def get_drives():
 
 
 @admin_bp.route("/api/admin/drive/<int:id>/approve", methods=["PUT"])
+@jwt_required()
 def approve_drive(id):
 
     drive = PlacementDrive.query.get_or_404(id)
@@ -292,6 +303,7 @@ def approve_drive(id):
 
 
 @admin_bp.route("/api/admin/drive/<int:id>/reject", methods=["PUT"])
+@jwt_required()
 def reject_drive(id):
 
     drive = PlacementDrive.query.get_or_404(id)
@@ -312,6 +324,7 @@ def reject_drive(id):
 
 
 @admin_bp.route("/api/admin/drive/<int:id>/close", methods=["PUT"])
+@jwt_required()
 def close_drive(id):
 
     drive = PlacementDrive.query.get_or_404(id)
@@ -343,6 +356,7 @@ def close_drive(id):
 # ===================== APPLICATION MANAGEMENT =====================
 
 @admin_bp.route("/api/admin/applications", methods=["GET"])
+@jwt_required()
 def get_all_applications():
 
     applications = Application.query.all()
@@ -376,6 +390,7 @@ def get_all_applications():
 # ===================== SEARCH =====================
 
 @admin_bp.route("/api/admin/search/students", methods=["GET"])
+@jwt_required()
 def search_students():
 
     query = request.args.get("query")
@@ -400,6 +415,7 @@ def search_students():
 
 
 @admin_bp.route("/api/admin/search/companies", methods=["GET"])
+@jwt_required()
 def search_companies():
 
     query = request.args.get("query")

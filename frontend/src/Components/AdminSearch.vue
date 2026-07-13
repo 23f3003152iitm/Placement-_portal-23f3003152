@@ -117,16 +117,27 @@ export default {
       this.isSearching = true;
       this.errorMessage = "";
       this.results = [];
+      const token = localStorage.getItem("token");
       this.lastQuery = this.query;
       const endpoint = this.searchType === "students"
         ? "http://localhost:5000/api/admin/search/students"
         : "http://localhost:5000/api/admin/search/companies";
       try {
-        const res = await axios.get(endpoint, { params: { query: this.query } });
+        const res = await axios.get(endpoint, {
+          params: { query: this.query },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.results = res.data;
         this.searched = true;
       } catch (err) {
-        this.errorMessage = "Search failed. Please try again.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Search failed. Please try again.";
+        }
       } finally {
         this.isSearching = false;
       }

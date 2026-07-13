@@ -139,11 +139,21 @@ export default {
       this.isLoading = true;
       this.errorMessage = "";
       const driveId = this.$route.params.id;
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`http://localhost:5000/api/company/applications/${driveId}`);
+        const res = await axios.get(`http://localhost:5000/api/company/applications/${driveId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.applications = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load applications.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.errorMessage = "Failed to load applications.";
+        }
       } finally {
         this.isLoading = false;
       }
@@ -158,13 +168,23 @@ export default {
       this.statusModal.isSubmitting = true;
       this.statusModal.successMessage = "";
       this.statusModal.errorMessage = "";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.put(`http://localhost:5000/api/company/application/${this.statusModal.applicationId}/status`, { status: this.statusModal.status, remarks: this.statusModal.remarks });
+        const res = await axios.put(`http://localhost:5000/api/company/application/${this.statusModal.applicationId}/status`, { status: this.statusModal.status, remarks: this.statusModal.remarks }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.statusModal.successMessage = res.data.message || "Status updated.";
         await this.fetchApplications();
         setTimeout(() => this.closeStatusModal(), 1500);
       } catch (err) {
-        this.statusModal.errorMessage = err.response?.data?.message || "Failed to update status.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.statusModal.errorMessage = err.response?.data?.message || "Failed to update status.";
+        }
       } finally {
         this.statusModal.isSubmitting = false;
       }
@@ -180,13 +200,23 @@ export default {
       this.interviewModal.successMessage = "";
       this.interviewModal.errorMessage = "";
       const formatted = this.interviewModal.interview_date.replace("T", " ") + ":00";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.put(`http://localhost:5000/api/company/application/${this.interviewModal.applicationId}/interview`, { interview_date: formatted });
+        const res = await axios.put(`http://localhost:5000/api/company/application/${this.interviewModal.applicationId}/interview`, { interview_date: formatted }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.interviewModal.successMessage = res.data.message || "Interview scheduled.";
         await this.fetchApplications();
         setTimeout(() => this.closeInterviewModal(), 1500);
       } catch (err) {
-        this.interviewModal.errorMessage = err.response?.data?.message || "Failed to schedule interview.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.interviewModal.errorMessage = err.response?.data?.message || "Failed to schedule interview.";
+        }
       } finally {
         this.interviewModal.isSubmitting = false;
       }

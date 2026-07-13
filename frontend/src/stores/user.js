@@ -38,27 +38,48 @@ export const useUserStore = defineStore("user", {
 
 
     
-    if (data.role.toLowerCase() === "student") {
-      console.log("Checking if student exists in backend...")
-      const check = await fetch(`${API}/api/student/check/${data.id}`)
-      const checkData = await check.json()
-      console.log("Check data:", checkData)
+if (data.role.toLowerCase() === "student") {
+  console.log("Token being sent:", data.token)  // ← add this
+  // const check = await fetch(`${API}/api/student/check/${data.id}`, {
+  //   method: "GET",                               // ← add method explicitly
+  //   headers: {
+  //     "Content-Type": "application/json",        // ← add this
+  //     Authorization: `Bearer ${data.token}`
+  //   }
 
-      if (checkData.exists) {
-        localStorage.setItem("student_id", checkData.student_id)  
-      }
+
+  const check = await fetch(`${API}/api/student/check/${data.id}`, {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${data.token}`
+  }
+})
+  console.log("Check status:", check.status)
+  const checkData = await check.json()
+  console.log("Check response:", checkData)  // ← what does Flask return?
+    
+
+
+  if (checkData.exists) {
+    localStorage.setItem("student_id", checkData.student_id)
+  }
+}
+
+if (data.role.toLowerCase() === "company") {
+  console.log("Checking if company exists in backend...")
+  const check = await fetch(`${API}/api/company/check/${data.id}`, {
+    headers: {
+      Authorization: `Bearer ${data.token}`  // ← add token here
     }
+  })
+  const checkData = await check.json()
+  console.log("Check data:", checkData)
 
-    if (data.role.toLowerCase() === "company") {
-      console.log("Checking if company exists in backend...")
-      const check = await fetch(`${API}/api/company/check/${data.id}`)
-      const checkData = await check.json()
-      console.log("Check data:", checkData)
-
-      if (checkData.exists) {
-        localStorage.setItem("company_id", checkData.company_id)  
-      } 
-    }
+  if (checkData.exists) {
+    localStorage.setItem("company_id", checkData.company_id)
+  }
+}
 
     
     return data   

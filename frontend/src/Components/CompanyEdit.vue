@@ -74,12 +74,22 @@ export default {
       this.errorMessage = "";
       const driveId = this.$route.params.id;
       const companyId = localStorage.getItem("company_id");
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`http://localhost:5000/api/company/drives/${companyId}`);
+        const res = await axios.get(`http://localhost:5000/api/company/drives/${companyId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         const drive = res.data.find((d) => d.id === parseInt(driveId));
         if (drive) { this.formData.job_title = drive.job_title || ""; }
       } catch (err) {
-        this.errorMessage = "Failed to load drive details.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load drive details.";
+        }
       } finally {
         this.isLoading = false;
       }
@@ -89,13 +99,23 @@ export default {
       this.isSubmitting = true;
       this.successMessage = "";
       this.errorMessage = "";
+      const token = localStorage.getItem("token");
       const driveId = this.$route.params.id;
       try {
-        const res = await axios.put(`http://localhost:5000/api/company/drive/${driveId}`, this.formData);
+        const res = await axios.put(`http://localhost:5000/api/company/drive/${driveId}`, this.formData, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.successMessage = res.data.message || "Drive updated successfully!";
         setTimeout(() => { this.$router.push("/company/drives"); }, 2000);
       } catch (err) {
-        this.errorMessage = err.response?.data?.message || "Update failed. Please try again.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.errorMessage = err.response?.data?.message || "Update failed. Please try again.";
+        }
       } finally {
         this.isSubmitting = false;
       }

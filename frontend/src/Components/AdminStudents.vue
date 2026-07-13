@@ -76,11 +76,21 @@ export default {
     async fetchStudents() {
       this.isLoading = true;
       this.errorMessage = "";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get("http://localhost:5000/api/admin/students");
+        const res = await axios.get("http://localhost:5000/api/admin/students", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.students = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load students.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load students.";
+        }
       } finally {
         this.isLoading = false;
       }
@@ -96,12 +106,22 @@ export default {
       this.actionLoading = id;
       this.successMessage = "";
       this.errorMessage = "";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios[method](`http://localhost:5000${endpoint}`);
+        const res = await axios[method](`http://localhost:5000${endpoint}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.successMessage = res.data.message || "Action completed.";
         await this.fetchStudents();
       } catch (err) {
-        this.errorMessage = err.response?.data?.message || "Action failed. Please try again.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.errorMessage = err.response?.data?.message || "Action failed. Please try again.";
+        }
       } finally {
         this.actionLoading = null;
       }

@@ -62,11 +62,21 @@ export default {
       this.isLoading = true;
       this.errorMessage = "";
       const studentId = localStorage.getItem("student_id");
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get(`http://localhost:5000/api/student/history/${studentId}`);
+        const res = await axios.get(`http://localhost:5000/api/student/history/${studentId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.history = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load placement history.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load placement history.";
+        }
       } finally {
         this.isLoading = false;
       }

@@ -60,13 +60,23 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
       const userId = localStorage.getItem("id");
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.post(`http://localhost:5000/api/company_profile/${userId}`, this.formData);
+        const res = await axios.post(`http://localhost:5000/api/company_profile/${userId}`, this.formData, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         localStorage.setItem("company_id", res.data.company_id);
         this.successMessage = res.data.message || "Profile saved successfully!";
         setTimeout(() => { this.$router.push("/company_dashboard"); }, 2000);
       } catch (err) {
-        this.errorMessage = err.response?.data?.message || "Failed to save profile. Please try again.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.errorMessage = err.response?.data?.message || "Failed to save profile. Please try again.";
+        }
       } finally {
         this.isSubmitting = false;
       }

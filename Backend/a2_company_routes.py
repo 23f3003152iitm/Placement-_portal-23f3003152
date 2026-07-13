@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from model import Company, PlacementDrive, Application, Student
 from db import db
 import datetime
@@ -10,6 +11,7 @@ company_bp = Blueprint("company", __name__)
 
 
 @company_bp.route("/api/company/check/<int:user_id>", methods=["GET"])
+
 def check_company(user_id):
     company = Company.query.filter_by(user_id=user_id).first()
     if company:
@@ -74,6 +76,7 @@ def register(id):
 # ===================== COMPANY DASHBOARD =====================
 
 @company_bp.route("/api/company/dashboard/<int:company_id>", methods=["GET"])
+@jwt_required()
 def company_dashboard(company_id):
 
     company = Company.query.get_or_404(company_id)
@@ -120,6 +123,7 @@ def company_dashboard(company_id):
 # ===================== CREATE PLACEMENT DRIVE =====================
 
 @company_bp.route("/api/company/drives", methods=["POST"])
+@jwt_required()
 def create_drive():
 
     data = request.get_json()
@@ -178,6 +182,7 @@ def create_drive():
 # ===================== GET COMPANY DRIVES =====================
 
 @company_bp.route("/api/company/drives/<int:company_id>", methods=["GET"])
+@jwt_required()
 def get_company_drives(company_id):
 
     drives = PlacementDrive.query.filter_by(
@@ -211,6 +216,7 @@ def get_company_drives(company_id):
 # ===================== UPDATE DRIVE =====================
 
 @company_bp.route("/api/company/drive/<int:id>", methods=["PUT"])
+@jwt_required()
 def update_drive(id):
 
     drive = PlacementDrive.query.get_or_404(id)
@@ -249,6 +255,7 @@ def update_drive(id):
 # ===================== DELETE DRIVE =====================
 
 @company_bp.route("/api/company/drive/<int:id>", methods=["DELETE"])
+@jwt_required()
 def delete_drive(id):
 
     drive = PlacementDrive.query.get_or_404(id)
@@ -280,6 +287,7 @@ def delete_drive(id):
 # ===================== VIEW APPLICATIONS =====================
 
 @company_bp.route("/api/company/applications/<int:drive_id>", methods=["GET"])
+@jwt_required()
 def get_drive_applications(drive_id):
 
     applications = Application.query.filter_by(
@@ -314,6 +322,7 @@ def get_drive_applications(drive_id):
 # ===================== UPDATE APPLICATION STATUS =====================
 
 @company_bp.route("/api/company/application/<int:id>/status", methods=["PUT"])
+@jwt_required()
 def update_application_status(id):
 
     application = Application.query.get_or_404(id)
@@ -349,6 +358,7 @@ def update_application_status(id):
 # ===================== SCHEDULE INTERVIEW =====================
 
 @company_bp.route("/api/company/application/<int:id>/interview", methods=["PUT"])
+@jwt_required()
 def schedule_interview(id):
 
     application = Application.query.get_or_404(id)

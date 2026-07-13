@@ -91,15 +91,25 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
       const companyId = localStorage.getItem("company_id");
+      const token = localStorage.getItem("token");
       try {
         const res = await axios.post("http://localhost:5000/api/company/drives", {
           ...this.formData,
           company_id: parseInt(companyId),
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
         this.successMessage = res.data.message || "Drive posted successfully!";
         setTimeout(() => { this.$router.push("/company_drives"); }, 2000);
       } catch (err) {
-        this.errorMessage = err.response?.data?.message || "Failed to create drive. Please try again.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/");
+        } else {
+          this.errorMessage = err.response?.data?.message || "Failed to create drive. Please try again.";
+        }
       } finally {
         this.isSubmitting = false;
       }

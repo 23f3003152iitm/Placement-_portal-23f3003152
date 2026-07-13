@@ -68,11 +68,21 @@ export default {
     async fetchApplications() {
       this.isLoading = true;
       this.errorMessage = "";
+      const token = localStorage.getItem("token");
       try {
-        const res = await axios.get("http://localhost:5000/api/admin/applications");
+        const res = await axios.get("http://localhost:5000/api/admin/applications", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         this.applications = res.data;
       } catch (err) {
-        this.errorMessage = "Failed to load applications.";
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          this.$router.push("/login");
+        } else {
+          this.errorMessage = "Failed to load applications.";
+        }
       } finally {
         this.isLoading = false;
       }
