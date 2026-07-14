@@ -98,7 +98,7 @@ export default {
       } catch (err) {
         if (err.response?.status === 401) {
           localStorage.clear();
-          this.$router.push("/login");
+          this.$router.push("/");
         } else {
           this.errorMessage = "Failed to load companies.";
         }
@@ -116,29 +116,39 @@ export default {
     },
 
     async performAction(id, method, endpoint) {
-      this.actionLoading = id;
-      this.successMessage = "";
-      this.errorMessage = "";
-      const token = localStorage.getItem("token");
-      try {
-        const res = await axios[method](`http://localhost:5000${endpoint}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+    this.actionLoading = id;
+    this.successMessage = "";
+    this.errorMessage = "";
+    const token = localStorage.getItem("token");
+    try {
+      let res;
+      
+      if (method === "delete") {
+        // DELETE → 2 arguments
+        res = await axios.delete(`http://localhost:5000${endpoint}`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        this.successMessage = res.data.message || "Action completed.";
-        await this.fetchCompanies();
-      } catch (err) {
-        if (err.response?.status === 401) {
-          localStorage.clear();
-          this.$router.push("/login");
-        } else {
-          this.errorMessage = err.response?.data?.message || "Action failed. Please try again.";
-        }
-      } finally {
-        this.actionLoading = null;
+      } else {
+        // PUT → 3 arguments (url, body, headers)
+        res = await axios.put(`http://localhost:5000${endpoint}`,
+          {},  // ← empty body
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       }
-    },
+
+      this.successMessage = res.data.message || "Action completed.";
+      await this.fetchCompanies();
+    } catch (err) {
+      if (err.response?.status === 401) {
+        localStorage.clear();
+        this.$router.push("/");
+      } else {
+        this.errorMessage = err.response?.data?.message || "Action failed. Please try again.";
+      }
+    } finally {
+      this.actionLoading = null;
+    }
+  },
 
     statusBadge(status) {
       const map = {

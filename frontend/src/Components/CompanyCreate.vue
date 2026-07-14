@@ -96,7 +96,7 @@ export default {
         const res = await axios.post("http://localhost:5000/api/company/drives", {
           ...this.formData,
           company_id: parseInt(companyId),
-        }, {
+        },{
           headers: {
             Authorization: `Bearer ${token}`
           }

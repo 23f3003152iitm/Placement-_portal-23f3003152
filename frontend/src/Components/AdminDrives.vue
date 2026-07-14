@@ -89,12 +89,12 @@ export default {
           headers: {
             Authorization: `Bearer ${token}`
           }
-        });
+        }); 
         this.drives = res.data;
       } catch (err) {
         if (err.response?.status === 401) {
           localStorage.clear();
-          this.$router.push("/login");
+          this.$router.push("/");
         } else {
           this.errorMessage = "Failed to load placement drives.";
         }
@@ -111,10 +111,24 @@ export default {
       this.actionLoading = id;
       this.successMessage = "";
       this.errorMessage = "";
-      try {
-        const res = await axios[method](`http://localhost:5000${endpoint}`);
-        this.successMessage = res.data.message || "Action completed.";
-        await this.fetchDrives();
+    const token = localStorage.getItem("token");
+    try {
+      let res;
+      
+      if (method === "delete") {
+        // DELETE → 2 arguments
+        res = await axios.delete(`http://localhost:5000${endpoint}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else {
+        // PUT → 3 arguments (url, body, headers)
+        res = await axios.put(`http://localhost:5000${endpoint}`,
+          {},  // ← empty body
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      this.successMessage = res.data.message || "Action completed.";
+      await this.fetchDrives();
       } catch (err) {
         this.errorMessage = err.response?.data?.message || "Action failed. Please try again.";
       } finally {

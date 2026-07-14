@@ -62,9 +62,9 @@
         <router-link to="/admin_companies" class="btn btn-outline-success">Companies</router-link>
         <router-link to="/admin_drives" class="btn btn-outline-warning">Drives</router-link>
         <router-link to="/admin_applications" class="btn btn-outline-danger">Applications</router-link>
-        <router-link to="/admin_search" class="btn btn-outline-secondary">Search</router-link>
+        <router-link to="/Admin_searchs" class="btn btn-outline-secondary">Search</router-link>
       </div>
-    </div>
+    </div> 
   </div>
 </template>
 

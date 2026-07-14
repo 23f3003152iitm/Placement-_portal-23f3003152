@@ -106,15 +106,25 @@ export default {
       this.actionLoading = id;
       this.successMessage = "";
       this.errorMessage = "";
-      const token = localStorage.getItem("token");
-      try {
-        const res = await axios[method](`http://localhost:5000${endpoint}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+    const token = localStorage.getItem("token");
+    try {
+      let res;
+      
+      if (method === "delete") {
+        // DELETE → 2 arguments
+        res = await axios.delete(`http://localhost:5000${endpoint}`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
-        this.successMessage = res.data.message || "Action completed.";
-        await this.fetchStudents();
+      } else {
+        // PUT → 3 arguments (url, body, headers)
+        res = await axios.put(`http://localhost:5000${endpoint}`,
+          {},  // ← empty body
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+
+      this.successMessage = res.data.message || "Action completed.";
+      await this.fetchStudents();
       } catch (err) {
         if (err.response?.status === 401) {
           localStorage.clear();
